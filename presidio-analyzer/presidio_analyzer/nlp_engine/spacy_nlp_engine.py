@@ -1,4 +1,5 @@
 import spacy
+from sutime import SUTime
 
 from presidio_analyzer import PresidioLogger
 from presidio_analyzer.nlp_engine import NlpArtifacts, NlpEngine
@@ -16,9 +17,9 @@ class SpacyNlpEngine(NlpEngine):
     engine_name = "spacy"
     is_available = bool(spacy)
 
-    def __init__(self, models=None):
+    def __init__(self, models=None, overwrite_date=True):
         if not models:
-            models = {"en": "en_core_web_lg"}
+            models = {"en": "en_core_web_trf"}
         logger.debug(f"Loading SpaCy models: {models.values()}")
 
         self.nlp = {
@@ -26,6 +27,8 @@ class SpacyNlpEngine(NlpEngine):
             for lang_code, model_name in models.items()
         }
 
+        self.su_time = SUTime()
+        self.overwrite_date = overwrite_date
         for model_name in models.values():
             logger.debug("Printing spaCy model and package details:"
                          "\n\n {}\n\n".format(spacy.info(model_name)))
@@ -56,7 +59,46 @@ class SpacyNlpEngine(NlpEngine):
         tokens = [token.text for token in doc]
         lemmas = [token.lemma_ for token in doc]
         tokens_indices = [token.idx for token in doc]
+
+        self.parse_date(doc)
+
         entities = doc.ents
+
         return NlpArtifacts(entities=entities, tokens=tokens,
                             tokens_indices=tokens_indices, lemmas=lemmas,
                             nlp_engine=self, language=language)
+
+    def parse_date(self, doc):
+        su_time = self.su_time
+        matches = su_time.parse(doc.text)
+        seen_tokens = set()
+        entities = list(doc.ents)
+        new_entities = []
+        for match in matches:
+            span = doc.char_span(match["start"], match["end"], label=match["type"])
+
+            if span is None:
+                continue
+
+            # There are instances like 1111 is recognized as Date. This ugly hack is to prevent it :(.
+            if span.text.isnumeric():
+                if len(span.text) > 4:
+                    continue
+                elif len(span.text) == 4 and int(span.text) < 1900:
+                    continue
+
+            start = span.start
+            end = span.end
+
+            if any(t.ent_type for t in doc[start:end]) and not self.overwrite_date:
+                continue
+
+            if start not in seen_tokens and end - 1 not in seen_tokens:
+                new_entities.append(span)
+                entities = [
+                    e for e in entities if not (e.start < end and e.end > start)
+                ]
+                seen_tokens.update(range(start, end))
+
+        doc.ents = entities + new_entities
+        return doc

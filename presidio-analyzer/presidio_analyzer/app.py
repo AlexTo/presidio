@@ -90,7 +90,7 @@ def serve_command_handler(
         )
         nlp_conf = {
             "nlp_engine_name": "spacy",
-            "models": [{"lang_code": "en", "model_name": "en_core_web_lg"}],
+            "models": [{"lang_code": "en", "model_name": "en_core_web_trf"}],
         }
     nlp_engine_name = nlp_conf["nlp_engine_name"]
     nlp_engine_class = NLP_ENGINES[nlp_engine_name]

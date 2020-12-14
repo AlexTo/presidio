@@ -137,7 +137,7 @@ class EntityRecognizer:
                 surrounding_words, recognizer_context_words)
             if supportive_context_word != "":
                 result.score += \
-                  self.CONTEXT_SIMILARITY_FACTOR
+                    self.CONTEXT_SIMILARITY_FACTOR
                 result.score = max(
                     result.score,
                     self.MIN_SCORE_WITH_CONTEXT_SIMILARITY)
@@ -179,8 +179,8 @@ class EntityRecognizer:
             # is found exactly or as a substring in any of the collected
             # context words
             result = \
-              next((True for keyword in context_list
-                    if predefined_context_word in keyword), False)
+                next((True for keyword in context_list
+                      if predefined_context_word in keyword), False)
             if result:
                 self.logger.debug("Found context keyword '%s'",
                                   predefined_context_word)
@@ -221,7 +221,7 @@ class EntityRecognizer:
             if lower_lemma in lemmatized_filtered_keywords:
                 context_words.append(lower_lemma)
                 remaining -= 1
-            i = i-1 if is_backward else i+1
+            i = i - 1 if is_backward else i + 1
         return context_words
 
     def __add_n_words_forward(self,
@@ -241,7 +241,7 @@ class EntityRecognizer:
                                n_words,
                                lemmas,
                                lemmatized_filtered_keywords):
-        return self. __add_n_words(
+        return self.__add_n_words(
             index,
             n_words,
             lemmas,
@@ -264,7 +264,7 @@ class EntityRecognizer:
             # we take a token which its characters indices covers
             # the index we are looking for.
             if ((tokens_indices[i] == start) or
-                    (start < tokens_indices[i] + len(token))):
+                (start < tokens_indices[i] + len(token))):
                 # found the interesting token, the one that around it
                 # we take n words, we save the matching lemma
                 found = True
@@ -272,8 +272,8 @@ class EntityRecognizer:
 
         if not found:
             raise ValueError("Did not find word '" + word + "' "
-                             "in the list of tokens although it "
-                             "is expected to be found")
+                                                            "in the list of tokens although it "
+                                                            "is expected to be found")
         return i
 
     def __extract_surrounding_words(self, nlp_artifacts, word, start):
@@ -313,12 +313,12 @@ class EntityRecognizer:
 
         backward_context = \
             self.__add_n_words_backward(token_index,
-                                        EntityRecognizer.CONTEXT_PREFIX_COUNT,
+                                        self.CONTEXT_PREFIX_COUNT,
                                         nlp_artifacts.lemmas,
                                         lemmatized_keywords)
         forward_context = \
             self.__add_n_words_forward(token_index,
-                                       EntityRecognizer.CONTEXT_SUFFIX_COUNT,
+                                       self.CONTEXT_SUFFIX_COUNT,
                                        nlp_artifacts.lemmas,
                                        lemmatized_keywords)
 

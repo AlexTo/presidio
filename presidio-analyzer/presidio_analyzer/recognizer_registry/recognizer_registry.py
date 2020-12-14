@@ -8,6 +8,7 @@ from presidio_analyzer.predefined_recognizers import (
     CryptoRecognizer,
     DomainRecognizer,
     EmailRecognizer,
+    BirthdayRecognizer,
     IbanRecognizer,
     IpRecognizer,
     NhsRecognizer,
@@ -80,6 +81,7 @@ class RecognizerRegistry:
                 EsNifRecognizer,
             ],
             "ALL": [
+                BirthdayRecognizer,
                 CreditCardRecognizer,
                 CryptoRecognizer,
                 DomainRecognizer,
@@ -135,7 +137,7 @@ class RecognizerRegistry:
                     rec
                     for rec in all_possible_recognizers
                     if entity in rec.supported_entities
-                    and language == rec.supported_language
+                       and language == rec.supported_language
                 ]
 
                 if not subset:
