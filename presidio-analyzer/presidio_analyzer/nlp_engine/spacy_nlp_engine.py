@@ -5,6 +5,7 @@ from presidio_analyzer import PresidioLogger
 from presidio_analyzer.nlp_engine import NlpArtifacts, NlpEngine
 
 logger = PresidioLogger()
+spacy.prefer_gpu()
 
 
 class SpacyNlpEngine(NlpEngine):
