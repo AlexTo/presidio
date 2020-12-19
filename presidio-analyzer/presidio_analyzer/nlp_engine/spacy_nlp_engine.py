@@ -1,4 +1,6 @@
 import spacy
+from spacy.matcher import Matcher
+from spacy.tokens import Span
 from sutime import SUTime
 
 from presidio_analyzer import PresidioLogger
@@ -57,12 +59,13 @@ class SpacyNlpEngine(NlpEngine):
         return self.nlp[language]
 
     def doc_to_nlp_artifact(self, doc, language):
+        nlp = self.get_nlp(language)
         tokens = [token.text for token in doc]
         lemmas = [token.lemma_ for token in doc]
         tokens_indices = [token.idx for token in doc]
 
         self.parse_date(doc)
-
+        self.match_url(doc, nlp.vocab)
         entities = doc.ents
 
         return NlpArtifacts(entities=entities, tokens=tokens,
@@ -103,3 +106,14 @@ class SpacyNlpEngine(NlpEngine):
 
         doc.ents = entities + new_entities
         return doc
+
+    def match_url(self, doc, vocab):
+        pattern = [{"LIKE_URL": True}]
+        matcher = Matcher(vocab)
+        matcher.add("url", [pattern])
+        matches = matcher(doc)
+        urls = []
+        for match_id, start, end in matches:
+            span = Span(doc, start, end, label="URL")
+            urls.append(span)
+        doc.ents = list(doc.ents) + urls

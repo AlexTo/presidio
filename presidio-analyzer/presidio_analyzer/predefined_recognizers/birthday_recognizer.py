@@ -1,6 +1,4 @@
-from sutime import SUTime
-
-from presidio_analyzer import LocalRecognizer, AnalysisExplanation, RecognizerResult, EntityRecognizer
+from presidio_analyzer import LocalRecognizer, AnalysisExplanation, RecognizerResult
 
 
 class BirthdayRecognizer(LocalRecognizer):
